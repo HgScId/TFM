@@ -1,0 +1,100 @@
+#include<opencv2/core/core.hpp> // Librerías necesarias para usar OpenCV
+#include<opencv2/highgui/highgui.hpp>
+#include<opencv2/imgproc/imgproc.hpp>
+
+cv::Mat imgOriginal;        // input image
+cv::Mat imgGrayscale;       // grayscale of input image
+cv::Mat imgBlurred;         // intermediate blured image
+cv::Mat imgCanny;           // Canny edge image
+
+
+imgOriginal = cv::imread("image.bmp");          // open image
+
+
+//Vector compatible con la función img.at<cv::Vec3b>(i,j)={B,G,R};
+cv::Vec3b intensity = { 0,255,0 };
+
+
+// Anula los valores G y R de la imagen
+for (int i = 0; i <= imgOriginal.u->size; i = i + 3)
+{
+imgOriginal.data[i + 1] = 0;
+imgOriginal.data[i + 2] = 0;
+}
+
+cv::namedWindow("imgOriginal2", CV_WINDOW_AUTOSIZE);
+cv::imshow("imgOriginal2", imgOriginal);
+cv::waitKey(0);
+
+
+cv::Mat imgGrayscale2;
+cv::cvtColor(imgOriginal, imgGrayscale2, CV_BGR2GRAY); // Transforma la imagen azul en escala de grises
+// Fundamentalmente esta función hace la media aritmética de las tres componentes de la imagen en cada píxel
+// Habría que comprobar que la operación que realiza OpenCV es esa realmente y no filtra de alguna manera cada
+// banda para transformar a GrayScale.
+cv::namedWindow("imgOriginal3", CV_WINDOW_AUTOSIZE);
+cv::imshow("imgOriginal3", imgGrayscale2);
+cv::waitKey(0);
+// Multiplica por 3 el valor del píxel de la imagen de grises(ya que las componentes rojo y azul estaban anuladas
+for (int i = 0; i <= imgGrayscale2.u->size; i++)
+{
+	imgGrayscale2.data[i] = imgGrayscale2.data[i] * 3;
+
+}
+cv::namedWindow("imgOriginal2", CV_WINDOW_AUTOSIZE);
+cv::imshow("imgOriginal2", imgGrayscale2);
+cv::waitKey(0);
+
+// Transformar color de píxeles por secciones cuadradas de la imagen
+for (int i = 0; i <= 1195; i++)
+{
+	for (int j = 0; j < 1595; j++)
+	{
+		imgOriginal.at<cv::Vec3b>(i, j) = intensity;
+
+	}
+}
+
+if (imgOriginal.empty()) {                                  // if unable to open image
+	std::cout << "error: image not read from file\n\n";     // show error message on command line
+	_getch();                                               // may have to modify this line if not using Windows
+	return(0);                                              // and exit program
+}
+
+cv::cvtColor(imgOriginal, imgGrayscale, CV_BGR2GRAY);       // convert to grayscale
+															//cv::namedWindow("imgOriginal", CV_WINDOW_AUTOSIZE);
+
+															//cv::imshow("imgOriginal", imgOriginal);     // show windows
+
+cv::GaussianBlur(imgGrayscale,          // input image
+	imgBlurred,                         // output image
+	cv::Size(5, 5),                     // smoothing window width and height in pixels
+	1.5);                               // sigma value, determines how much the image will be blurred
+
+cv::Canny(imgBlurred,           // input image
+	imgCanny,                   // output image
+	100,                        // low threshold
+	200);                       // high threshold
+
+								// declare windows
+
+								//cv::namedWindow("HOLA", CV_WINDOW_AUTOSIZE);
+								//cv::namedWindow("HOLA2", CV_WINDOW_AUTOSIZE);
+
+cv::namedWindow("imgOriginal", CV_WINDOW_AUTOSIZE);     // note: you can use CV_WINDOW_NORMAL which allows resizing the window
+														//cv::namedWindow("imgCanny", CV_WINDOW_AUTOSIZE);        // or CV_WINDOW_AUTOSIZE for a fixed size window matching the resolution of the image
+														// CV_WINDOW_AUTOSIZE is the default
+cv::imshow("imgOriginal", imgOriginal);     // show windows
+											//cv::resizeWindow("imgOriginal", 1596, 1196);
+											//cv::imshow("imgCanny", imgCanny);
+											//cv::Mat prueba = imgGrayscale - imgBlurred;
+											//cv::imshow("HOLA", prueba);
+											//cv::imshow("HOLA2", imgBlurred);
+
+
+
+cv::waitKey(0);                 // hold windows open until user presses a key
+
+
+// Crear una matriz de ceros de una banda.
+cv::Mat m(100, 100, CV_8UC1, cv::Scalar(0)); 
