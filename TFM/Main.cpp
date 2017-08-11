@@ -28,14 +28,12 @@ int main() {
 		
 		// Transformación a escala de grises
 		cv::cvtColor(imagen, imagenGris, CV_BGR2GRAY);
-		cv::imwrite("prueba" + std::to_string(imgarchivo) + "_1.bmp", imagenGris);
+		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_1.bmp", imagenGris);
 
 
 		// Umbralización con Otsu
 		cv::threshold(imagenGris, imagenUmbral, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
-
-		// Guardar imagen
-		cv::imwrite("prueba"+ std::to_string(imgarchivo) +"_2.bmp", imagenUmbral);
+		cv::imwrite("ImagenSalida\\prueba"+ std::to_string(imgarchivo) +"_2.bmp", imagenUmbral);
 
 		// Invertir umbralización 255 -> 0 y 0 -> 255
 		for (int i = 0; i <= imagenUmbral.u->size; i++) // imagenUmbral.u->size elementos de la matriz
@@ -49,7 +47,7 @@ int main() {
 				imagenUmbral.data[i] = 0;
 			}
 		}
-		cv::imwrite("prueba" + std::to_string(imgarchivo) + "_3.bmp", imagenUmbral);
+		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_3.bmp", imagenUmbral);
 		int prueba= imagen.channels();
 		//  Formar objetos 
 		imgDatos datos(imagenUmbral);
@@ -65,8 +63,8 @@ int main() {
 				}
 			}
 		}
-		cv::imwrite("prueba" + std::to_string(imgarchivo) + "_4.bmp", datos.conect);
-		cv::imwrite("prueba" + std::to_string(imgarchivo) + "_5.bmp", datos.numObj*255/datos.contObj);
+		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_4.bmp", datos.conect);
+		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_5.bmp", datos.numObj*255/datos.contObj);
 
 	}
 	
