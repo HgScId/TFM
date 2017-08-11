@@ -5,7 +5,7 @@
 #include <vector>
 #include<iostream>
 
-
+// Utiliza una imagen en color
 void DibujaHist(cv::Mat imagen)
 {
 	// Dividir las imágenes y representarlas en escala de grises
@@ -83,6 +83,7 @@ void DibujaHist(cv::Mat imagen)
 	cv::imwrite("Histograma.bmp", histImageB);
 }
 
+// Ver una imagen en color separada en sus tres bandas
 void ImagenBandas(cv::Mat imagen)
 {
 	std::vector<cv::Mat> imagenBandas;
