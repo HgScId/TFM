@@ -15,7 +15,14 @@ public:
 	cv::Mat conect; // Matriz que refleja el valor 0 si es un píxel fuera del umbral de Otsu y 255 si es un píxel seleccionado
 	cv::Mat numObj; // Matriz que marca el número de objeto en el que está cada píxel
 	std::vector<int> tamObj; // cada posición del vector identifica el tamaño de los objetos en número de píxeles
+	std::vector<cv::Vec2f> centroide; // Se trata de un vector de dos componenetes de floats que va a detectar el centroide de 
+	/*cada objeto. Cada píxel es un cuadrado de coordenadas conocidas. El píxel (0,0) se identifica a través de su esquina superior 
+	izquierda. Las coordenadas del centroide serán (0.5f,0.5f). El tamaño unitario del píxel hace que el problema se reduzca a 
+	hallar la suma de todos los centros de gravedad de los píxeles (componente X e Y por separado) y dividir entre el número de 
+	píxeles (área total del objeto).*/
 	int contObj=0;
+	std::vector<cv::Vec2i> posPix; // almacena las posiciones de los píxeles del objeto más grande (insecto)
+
 public:
 	void formaObjetos(int i, int j, cv::Mat* imagenUmbral);
 

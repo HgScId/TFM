@@ -9,7 +9,8 @@
 #include"ImgDatos.h"
 
 
-int main() {
+int main() 
+{
 
 	cv::Mat imagen= cv::imread("Fotos\\Tv1.bmp", CV_LOAD_IMAGE_COLOR);
 	cv::Mat imagenGris;
@@ -20,7 +21,6 @@ int main() {
 	{
 		// Cargamos imagen
 		imagen = cv::imread("Fotos\\Tv"+std::to_string(imgarchivo)+".bmp");
-		
 		if (imagen.dims == 0) // Saltarse la foto 6 que no está. Si no carga foto, omites el contador.
 		continue;
 	
@@ -57,7 +57,8 @@ int main() {
 				// Si encuentras un píxel con contenido y no ha sido analizado previamente
 				{	
 					datos.contObj++; // aumenta en uno el contador de los objetos
-					datos.tamObj.push_back(1);// Introduce un nuevo elemento al vector de tamaño de objetos 
+					datos.tamObj.push_back(1);// Introduce un nuevo elemento al vector de tamaño de objetos
+					datos.centroide.push_back({ i + 0.5f,j + 0.5f });
 					// y dile que, en principio, abarca 1 píxel de la imagen umbralizada.
 					datos.formaObjetos(i, j, &imagenUmbral);// extiéndete en los elementos conexos y forma el objeto
 				}
@@ -65,6 +66,18 @@ int main() {
 		}
 		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_4.bmp", datos.conect);
 		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_5.bmp", datos.numObj*255/datos.contObj);
+		
+		// Imagen negra donde se albergan los centroides. Será una imagen BGR de ceros donde los centroides se dibujarán en rojo.
+		cv::Mat imgCentroides(imagen.size(), CV_8UC3, cv::Scalar({ 0,0,0 }));
+		cv::Mat imgCentroidesSep[3]; //se almacenan por separado las bandas aquí.
+		cv::split(imgCentroides, imgCentroidesSep); //se dividen las bandas para poder trabajar con una de ellas.
+		
+		for (int i = 0; i < datos.centroide.size(); i++) //desde cero hasta el último centroide detectado
+		{	// banda del rojo
+			imgCentroidesSep[2].at<unsigned char>(int(datos.centroide[i].val[0]), int(datos.centroide[i].val[1])) =255;
+		}
+		cv::merge(imgCentroidesSep, 3, imgCentroides); // se vuelven a unir modificadas
+		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_6.bmp", imgCentroides);
 
 	}
 	

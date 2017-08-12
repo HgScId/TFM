@@ -47,6 +47,8 @@ void imgDatos::formaObjetos(int i, int j, cv::Mat* imagenUmbral)
 				{// Si no está conectado y hay contenido: mételo en el vector queue
 					conector.push({ fil,col });
 					tamObj.back()++; // dale al último elemento del vector(valor utilizado) un píxel más de tamaño.
+					centroide[tamObj.size()-1].val[0] += fil + 0.5f;
+					centroide[tamObj.size()-1].val[1] += col + 0.5f;
 					conect.at<unsigned char>(fil, col) = 255; // marcamos elemento como visto
 					numObj.at<unsigned char>(fil, col) = contObj; //introducimos su objeto
 				}
@@ -54,6 +56,11 @@ void imgDatos::formaObjetos(int i, int j, cv::Mat* imagenUmbral)
 		}
 		conector.pop(); // elimina el primer elemento
 	}
+
+	// Sin más puntos en el objeto, se divide entre el número de píxeles total cada componente del centroide
+	centroide[tamObj.size() - 1].val[0] /= tamObj.back();
+	centroide[tamObj.size() - 1].val[1] /= tamObj.back();
+
 }
 
 
