@@ -7,7 +7,6 @@
 #include<vector>
 #include"FuncionesVarias.h"
 #include"ImgDatos.h"
-#include<queue>
 
 
 int main() {
@@ -15,8 +14,8 @@ int main() {
 	cv::Mat imagen= cv::imread("Fotos\\Tv1.bmp", CV_LOAD_IMAGE_COLOR);
 	cv::Mat imagenGris;
 	cv::Mat imagenUmbral;
-	
-	
+
+
 	for (int imgarchivo = 1; imgarchivo <= 20; imgarchivo++)
 	{
 		// Cargamos imagen
@@ -25,7 +24,6 @@ int main() {
 		if (imagen.dims == 0) // Saltarse la foto 6 que no está. Si no carga foto, omites el contador.
 		continue;
 	
-		
 		// Transformación a escala de grises
 		cv::cvtColor(imagen, imagenGris, CV_BGR2GRAY);
 		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_1.bmp", imagenGris);
@@ -58,8 +56,10 @@ int main() {
 				if (imagenUmbral.at<unsigned char>(i, j)==255 && datos.conect.at<unsigned char>(i,j)!=255) 
 				// Si encuentras un píxel con contenido y no ha sido analizado previamente
 				{	
-					datos.contObj++;
-					datos.formaObjetos(i, j, &imagenUmbral);// extiéndete como una mancha de aceite en los elementos conexos y forma el objeto
+					datos.contObj++; // aumenta en uno el contador de los objetos
+					datos.tamObj.push_back(1);// Introduce un nuevo elemento al vector de tamaño de objetos 
+					// y dile que, en principio, abarca 1 píxel de la imagen umbralizada.
+					datos.formaObjetos(i, j, &imagenUmbral);// extiéndete en los elementos conexos y forma el objeto
 				}
 			}
 		}

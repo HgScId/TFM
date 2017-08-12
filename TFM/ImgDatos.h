@@ -14,6 +14,7 @@ public:
 	// En el .cpp se inicializan
 	cv::Mat conect; // Matriz que refleja el valor 0 si es un píxel fuera del umbral de Otsu y 255 si es un píxel seleccionado
 	cv::Mat numObj; // Matriz que marca el número de objeto en el que está cada píxel
+	std::vector<int> tamObj; // cada posición del vector identifica el tamaño de los objetos en número de píxeles
 	int contObj=0;
 public:
 	void formaObjetos(int i, int j, cv::Mat* imagenUmbral);

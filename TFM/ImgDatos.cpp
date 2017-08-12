@@ -26,6 +26,7 @@ void imgDatos::formaObjetos(int i, int j, cv::Mat* imagenUmbral)
 	conect.at<unsigned char>(i,j) = 255; // marcamos primer elemento como visto
 	numObj.at<unsigned char>(i,j) = contObj; // introducimos objeto
 	
+	
 	while (!conector.empty())
 	{	// Comprobación para que la iteración de búsqueda se haga siempre en los límites de la imagen
 		int testfil1 = 1, testfil2 = 1, testcol1 = 1, testcol2 = 1;
@@ -45,6 +46,7 @@ void imgDatos::formaObjetos(int i, int j, cv::Mat* imagenUmbral)
 				if (conect.at<unsigned char>(fil, col) != 255 && (*imagenUmbral).at<unsigned char>(fil, col) == 255)
 				{// Si no está conectado y hay contenido: mételo en el vector queue
 					conector.push({ fil,col });
+					tamObj.back()++; // dale al último elemento del vector(valor utilizado) un píxel más de tamaño.
 					conect.at<unsigned char>(fil, col) = 255; // marcamos elemento como visto
 					numObj.at<unsigned char>(fil, col) = contObj; //introducimos su objeto
 				}
