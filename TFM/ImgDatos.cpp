@@ -7,8 +7,8 @@
 
 imgDatos::imgDatos(cv::Mat imagenRef)
 	:
-	conect(imagenRef.rows, imagenRef.cols, CV_8UC1, cv::Scalar(0)), // Los miembros de la clase usan su constructor aquí. Usarlo en el cuerpo
-	numObj(imagenRef.rows, imagenRef.cols, CV_8UC1, cv::Scalar(0)) // del constructor hace que se interpreten como una función miembro
+	conect(imagenRef.size(), CV_8UC1, cv::Scalar(0)), // Los miembros de la clase usan su constructor aquí. Usarlo en el cuerpo
+	numObj(imagenRef.size(), CV_8UC1, cv::Scalar(0)) // del constructor hace que se interpreten como una función miembro
 {
 }
 
@@ -21,12 +21,13 @@ void imgDatos::formaObjetos(int i, int j, cv::Mat* imagenUmbral)
 	cada vez que se quita un elemento (FIFO, First In First Out, el primero en entrar el primero en salir). Otra clase de la librería estándar 
 	es stack que introduce elementos en primera posición y quita también la primera posición (LIFO, Last In First Out, el último en entrar el 
 	primero en salir) */
-
 	conector.push({ i, j }); // introducimos el primer contenido detectado como último elemento (está vacío, se coloca el primero)
 	conect.at<unsigned char>(i,j) = 255; // marcamos primer elemento como visto
 	numObj.at<unsigned char>(i,j) = contObj; // introducimos objeto
 	
-	
+	std::vector<cv::Vec2i> posPixTemp; // vector temporal de posiciones del objeto más grande
+	posPixTemp.push_back({ i,j });
+
 	while (!conector.empty())
 	{	// Comprobación para que la iteración de búsqueda se haga siempre en los límites de la imagen
 		int testfil1 = 1, testfil2 = 1, testcol1 = 1, testcol2 = 1;
@@ -51,6 +52,7 @@ void imgDatos::formaObjetos(int i, int j, cv::Mat* imagenUmbral)
 					centroide[tamObj.size()-1].val[1] += col + 0.5f;
 					conect.at<unsigned char>(fil, col) = 255; // marcamos elemento como visto
 					numObj.at<unsigned char>(fil, col) = contObj; //introducimos su objeto
+					posPixTemp.push_back({ fil,col }); // cada píxel del objeto añade sus coordenadas al vector temporal
 				}
 			}
 		}
@@ -60,6 +62,16 @@ void imgDatos::formaObjetos(int i, int j, cv::Mat* imagenUmbral)
 	// Sin más puntos en el objeto, se divide entre el número de píxeles total cada componente del centroide
 	centroide[tamObj.size() - 1].val[0] /= tamObj.back();
 	centroide[tamObj.size() - 1].val[1] /= tamObj.back();
+
+	// Se comprueba si el vector de posiciones temporal es mayor que el vector de posiciones del objeto más grande.
+	if (posPixTemp.size() > posPix.size())
+	{
+		posPix.clear(); // Se borra el vector definitivo si es más pequeño
+		for (int i = 0; i < posPixTemp.size(); i++)
+		{
+			posPix.push_back(posPixTemp[i]); // Se introducen todos los valores
+		}
+	}
 
 }
 

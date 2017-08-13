@@ -7,6 +7,7 @@
 #include<vector>
 #include"FuncionesVarias.h"
 #include"ImgDatos.h"
+#include<math.h>
 
 
 int main() 
@@ -67,6 +68,7 @@ int main()
 		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_4.bmp", datos.conect);
 		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_5.bmp", datos.numObj*255/datos.contObj);
 		
+		/// DIBUJAR CENTROIDES DE LOS OBJETOS UMBRALIZADOS
 		// Imagen negra donde se albergan los centroides. Será una imagen BGR de ceros donde los centroides se dibujarán en rojo.
 		cv::Mat imgCentroides(imagen.size(), CV_8UC3, cv::Scalar({ 0,0,0 }));
 		cv::Mat imgCentroidesSep[3]; //se almacenan por separado las bandas aquí.
@@ -79,7 +81,42 @@ int main()
 		cv::merge(imgCentroidesSep, 3, imgCentroides); // se vuelven a unir modificadas
 		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_6.bmp", imgCentroides);
 
-	}
+		/// MOMENTOS DE INERCIA DEL INSECTO
+		// Localización del objeto más grande
+		int n = 0; // localizador del objeto más grande. Se podría evitar si borrase el resto de objetos.
+		for (int i = 0; i < datos.contObj; i++)
+		{
+			if (datos.tamObj[i] > datos.tamObj[n])
+			{
+				n = i;
+			}
+		}
+
+		// Cálculo de momentos de inercia centrales en el objeto más grande
+		for (int i = 0; i < datos.posPix.size(); i++)
+		{
+			datos.InerciaX += (datos.posPix[i].val[1]+0.5f - datos.centroide[n].val[1])*(datos.posPix[i].val[1]+0.5f - datos.centroide[n].val[1]);
+			datos.InerciaY += (datos.posPix[i].val[0]+0.5f - datos.centroide[n].val[0])*(datos.posPix[i].val[0]+0.5f - datos.centroide[n].val[0]);
+			datos.InerciaXY += (datos.posPix[i].val[0]+0.5f - datos.centroide[n].val[0])*(datos.posPix[i].val[1]+0.5f - datos.centroide[n].val[1]);
+		}
+
+		// ANGULO PARA EJES PRINCIPALES
+		// El símbolo está configurado para que el giro de los ejes en sentido de las agujas del reloj siempre sea
+		// negativo y giro antihorario positivo. InerciasX > InerciasY suponen que el insecto está en horizontal y es el eje Y el que se alinea
+		// con el eje principal del insecto. Al contrario, el eje X (vertical descendente) sería la dirección principal que se alinea con el insecto
+		// Se podría sumar 90º para corregir en el caso de requerirlo y así sería siempre el eje X el alineado con el insecto.
+		if (datos.InerciaX > datos.InerciaY)
+		{
+			datos.AngGiro = (3.141592)/2-std::atan((2 * datos.InerciaXY) / (datos.InerciaX - datos.InerciaY)) / 2; //ángulo en radianes
+		}
+		else
+		{
+			datos.AngGiro = std::atan((2 * datos.InerciaXY) / (datos.InerciaY - datos.InerciaX)) / 2; //ángulo en radianes
+
+		}
+		datos.AngGiro = 360 * datos.AngGiro / (2 * 3.141592);
+
+	}	
 	
 
 

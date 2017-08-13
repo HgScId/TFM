@@ -22,7 +22,9 @@ public:
 	píxeles (área total del objeto).*/
 	int contObj=0;
 	std::vector<cv::Vec2i> posPix; // almacena las posiciones de los píxeles del objeto más grande (insecto)
-
+	float InerciaX, InerciaY, InerciaXY, AngGiro; // Momento de inercia central (pasa por el centroide) del eje X (eje vertical descendente), 
+	// del eje Y (eje horizontal hacia la derecha) y ángulo de rotación de los ejes para transformar en ejes principales de inercia.
+	
 public:
 	void formaObjetos(int i, int j, cv::Mat* imagenUmbral);
 
