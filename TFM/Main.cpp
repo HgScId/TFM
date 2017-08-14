@@ -8,6 +8,7 @@
 #include"FuncionesVarias.h"
 #include"ImgDatos.h"
 #include<math.h>
+#include<queue>
 
 
 int main() 
@@ -100,24 +101,84 @@ int main()
 			datos.InerciaXY += (datos.posPix[i].val[0]+0.5f - datos.centroide[n].val[0])*(datos.posPix[i].val[1]+0.5f - datos.centroide[n].val[1]);
 		}
 
-		// ANGULO PARA EJES PRINCIPALES
+		/// ANGULO PARA EJES PRINCIPALES
 		// El símbolo está configurado para que el giro de los ejes en sentido de las agujas del reloj siempre sea
 		// negativo y giro antihorario positivo. InerciasX > InerciasY suponen que el insecto está en horizontal y es el eje Y el que se alinea
 		// con el eje principal del insecto. Al contrario, el eje X (vertical descendente) sería la dirección principal que se alinea con el insecto
 		// Se podría sumar 90º para corregir en el caso de requerirlo y así sería siempre el eje X el alineado con el insecto.
 		if (datos.InerciaX > datos.InerciaY)
 		{
-			datos.AngGiro = (3.141592)/2-std::atan((2 * datos.InerciaXY) / (datos.InerciaX - datos.InerciaY)) / 2; //ángulo en radianes
+			datos.AngGiro = (3.141592f)/2.0f-std::atan((2.0f * datos.InerciaXY) / (datos.InerciaX - datos.InerciaY)) / 2.0f; //ángulo en radianes
 		}
 		else
 		{
 			datos.AngGiro = std::atan((2 * datos.InerciaXY) / (datos.InerciaY - datos.InerciaX)) / 2; //ángulo en radianes
 
 		}
-		datos.AngGiro = 360 * datos.AngGiro / (2 * 3.141592);
+		datos.AngGiro = 360.0f * datos.AngGiro / (2.0f * 3.141592f);
+
+		/// DIBUJAR CONTORNO
+		cv::Mat contornoSep[3];
+		cv::split(datos.contorno, contornoSep);
+
+		for (int k = 0; k < datos.posPix.size();k++) // bucle por cada posición del vector de coordenadas del insecto
+		{
+			int i = datos.posPix[k].val[0]; // tomo posición de fila
+			int j = datos.posPix[k].val[1]; // tomo posición de columna
+			contornoSep[0].at<unsigned char>(i, j) = 255; // Insecto en azul
+			contornoSep[1].at<unsigned char>(i, j) = 0; // Le quitas el verde de contornos de otra iteración
+
+			// Si alrededor hay espacio (no te sales de la imagen) y si no valen ya 255 las bandas de azul, dale el verde al contorno.
+			if (i - 1 >= 0 && contornoSep[0].at<unsigned char>(i-1, j) != 255) contornoSep[1].at<unsigned char>(i - 1, j) = 255;
+			if (i + 1 <= contornoSep[1].rows && contornoSep[0].at<unsigned char>(i + 1, j) != 255) contornoSep[1].at<unsigned char>(i + 1, j) = 255;
+			if (j - 1 >= 0 && contornoSep[0].at<unsigned char>(i, j-1) != 255) contornoSep[1].at<unsigned char>(i, j - 1) = 255;
+			if (j + 1 <= contornoSep[1].cols && contornoSep[0].at<unsigned char>(i, j+1) != 255)contornoSep[1].at<unsigned char>(i, j + 1) = 255;
+		}
+		
+		
+		/// DIFERENCIAR CONTORNO EXTERNO DE INTERNO: ROJO EXTERNO, VERDE INTERNO, INSECTO AZUL
+		assert(datos.posPix[0].val[0] - 1 > 0); // Si falla esto significa que la figura está pegada en el extremo y el borde se corta
+		// en la foto
+		cv::Vec2i posIni = { datos.posPix[0].val[0]-1,datos.posPix[0].val[1] }; // lo posición inicial corresponde con el primer punto 
+		// detectado en posPix subiendo la fila en una posición
+		std::queue<cv::Vec2i> vecRellenaCont;
+		vecRellenaCont.push({ datos.posPix[0].val[0] - 1,datos.posPix[0].val[1] }); // se introduce la posición inicial del contorno
+		contornoSep[1].at<unsigned char>(datos.posPix[0].val[0] - 1, datos.posPix[0].val[1]) = 0; // le quito el verde
+		contornoSep[2].at<unsigned char>(datos.posPix[0].val[0] - 1, datos.posPix[0].val[1]) = 255; // cambiamos el color del contorno externo a rojo. Sirve para diferenciar.
+
+		while (!vecRellenaCont.empty())
+		{
+			int testfil1 = 1, testfil2 = 1, testcol1 = 1, testcol2 = 1;
+			if (vecRellenaCont.front().val[0] == 0) testfil1 = 0;
+			if (vecRellenaCont.front().val[0] == imagen.rows) testfil1 = 0;
+			if (vecRellenaCont.front().val[1] == 0) testcol1 = 0;
+			if (vecRellenaCont.front().val[1] == imagen.cols) testcol2 = 0;
+			assert(vecRellenaCont.front().val[0] - testfil1 >= 0); // En el caso de que la resta sea un valor menor que cero, salta un error.
+			assert(vecRellenaCont.front().val[1] - testcol1 >= 0); // En el caso de que la resta sea un valor menor que cero, salta un error.
+			assert(vecRellenaCont.front().val[0] + testfil2 <= imagen.rows); // En el caso de que la resta sea un valor mayor que el núm de filas, error.
+			assert(vecRellenaCont.front().val[1] + testcol2 <= imagen.cols); // En el caso de que la resta sea un valor mayor que el núm de colmns, error.
+			
+			for (int fil = vecRellenaCont.front().val[0] - testfil1; fil <= vecRellenaCont.front().val[0] + testfil2; fil++)
+			{
+				for (int col = vecRellenaCont.front().val[1] - testcol1; col <= vecRellenaCont.front().val[1] + testcol2; col++)
+				{
+					if (contornoSep[1].at<unsigned char>(fil, col) == 255)
+					{
+						vecRellenaCont.push({ fil,col });
+						contornoSep[1].at<unsigned char>(fil, col) = 0;
+						contornoSep[2].at<unsigned char>(fil, col) = 255;
+					}
+				}
+			}
+			vecRellenaCont.pop();
+
+		}
+		
+		cv::merge(contornoSep, 3, datos.contorno);
+		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_7.bmp", datos.contorno);
+		
 
 	}	
-	
 
 
 

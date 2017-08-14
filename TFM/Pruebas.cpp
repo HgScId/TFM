@@ -98,3 +98,121 @@ cv::waitKey(0);                 // hold windows open until user presses a key
 
 // Crear una matriz de ceros de una banda.
 cv::Mat m(100, 100, CV_8UC1, cv::Scalar(0)); 
+
+
+/// INTENTO FALLIDO DE HACER UN AALGORITMO DE ORDEN DE MOVIMIENTO A LO LARGO DE UN CONTORNO
+do
+{
+// Movimiento derecha
+if (contornoSep[1].at<unsigned char>(posActual.val[0], posActual.val[1] + 1) == 255)
+{	// Si hay contorno a la derecha almacenado en la banda verde, lo cambiamos a la banda roja ya que
+// será del contorno externo.
+posActual.val[1] += 1;
+contornoSep[1].at<unsigned char>(posActual.val[0], posActual.val[1]) = 0;
+contornoSep[2].at<unsigned char>(posActual.val[0], posActual.val[1]) = 255;
+cv::merge(contornoSep, 3, datos.contorno);
+cv::imshow("Imagen", datos.contorno);
+cv::waitKey();
+goto stop;
+}
+
+// Movimiento abajo
+if (contornoSep[1].at<unsigned char>(posActual.val[0] + 1, posActual.val[1]) == 255)
+{
+posActual.val[0] += 1;
+contornoSep[1].at<unsigned char>(posActual.val[0], posActual.val[1]) = 0;
+contornoSep[2].at<unsigned char>(posActual.val[0], posActual.val[1]) = 255;
+cv::merge(contornoSep, 3, datos.contorno);
+cv::imshow("Imagen", datos.contorno);
+cv::waitKey();
+goto stop;
+}
+
+// Movimiento derecha abajo
+if (contornoSep[1].at<unsigned char>(posActual.val[0] + 1, posActual.val[1] + 1) == 255)
+{
+posActual.val[0] += 1;
+posActual.val[1] += 1;
+contornoSep[1].at<unsigned char>(posActual.val[0], posActual.val[1]) = 0;
+contornoSep[2].at<unsigned char>(posActual.val[0], posActual.val[1]) = 255;
+cv::merge(contornoSep, 3, datos.contorno);
+cv::imshow("Imagen", datos.contorno);
+cv::waitKey();
+goto stop;
+}
+
+// Movimiento izquierda
+if (contornoSep[1].at<unsigned char>(posActual.val[0], posActual.val[1] - 1) == 255)
+{
+posActual.val[1] -= 1;
+contornoSep[1].at<unsigned char>(posActual.val[0], posActual.val[1]) = 0;
+contornoSep[2].at<unsigned char>(posActual.val[0], posActual.val[1]) = 255;
+cv::merge(contornoSep, 3, datos.contorno);
+cv::imshow("Imagen", datos.contorno);
+cv::waitKey();
+goto stop;
+}
+
+// Movimiento izquierda abajo
+if (contornoSep[1].at<unsigned char>(posActual.val[0] + 1, posActual.val[1] - 1) == 255)
+{
+posActual.val[0] += 1;
+posActual.val[1] -= 1;
+contornoSep[1].at<unsigned char>(posActual.val[0], posActual.val[1]) = 0;
+contornoSep[2].at<unsigned char>(posActual.val[0], posActual.val[1]) = 255;
+cv::merge(contornoSep, 3, datos.contorno);
+cv::imshow("Imagen", datos.contorno);
+cv::waitKey();
+goto stop;
+}
+
+// Movimiento arriba
+if (contornoSep[1].at<unsigned char>(posActual.val[0] - 1, posActual.val[1]) == 255)
+{
+posActual.val[0] -= 1;
+contornoSep[1].at<unsigned char>(posActual.val[0], posActual.val[1]) = 0;
+contornoSep[2].at<unsigned char>(posActual.val[0], posActual.val[1]) = 255;
+cv::merge(contornoSep, 3, datos.contorno);
+cv::imshow("Imagen", datos.contorno);
+cv::waitKey();
+goto stop;
+}
+// Movimiento izquierda arriba
+if (contornoSep[1].at<unsigned char>(posActual.val[0] - 1, posActual.val[1] - 1) == 255)
+{
+posActual.val[0] -= 1;
+posActual.val[1] -= 1;
+contornoSep[1].at<unsigned char>(posActual.val[0], posActual.val[1]) = 0;
+contornoSep[2].at<unsigned char>(posActual.val[0], posActual.val[1]) = 255;
+cv::merge(contornoSep, 3, datos.contorno);
+cv::imshow("Imagen", datos.contorno);
+cv::waitKey();
+goto stop;
+}
+
+
+// Movimiento derecha arriba
+if (contornoSep[1].at<unsigned char>(posActual.val[0]-1, posActual.val[1] + 1) == 255)
+{
+posActual.val[0] -= 1;
+posActual.val[1] += 1;
+contornoSep[1].at<unsigned char>(posActual.val[0], posActual.val[1]) = 0;
+contornoSep[2].at<unsigned char>(posActual.val[0], posActual.val[1]) = 255;
+cv::merge(contornoSep, 3, datos.contorno);
+cv::imshow("Imagen", datos.contorno);
+cv::waitKey();
+goto stop;
+}
+else
+{
+std::cout << "SE HA BLOQUEADO!!!";
+cv::merge(contornoSep, 3, datos.contorno);
+cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_7.bmp", datos.contorno);
+
+cv::imshow("Imagen", datos.contorno);
+cv::waitKey();
+}
+stop:;
+}
+while (posActual != posIni);
+*/
