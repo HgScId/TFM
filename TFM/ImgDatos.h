@@ -8,7 +8,7 @@
 class imgDatos
 {
 public:
-	imgDatos(cv::Mat imagenRef);
+	imgDatos(cv::Mat* imagenRef);
 public:
 	// Estos miembros de la clase han de ser inicilizados con datos de la matriz imagenRef que se le pasa al constructor. 
 	// En el .cpp se inicializan

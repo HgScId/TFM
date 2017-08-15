@@ -5,11 +5,11 @@
 #include<assert.h>
 #include<queue>
 
-imgDatos::imgDatos(cv::Mat imagenRef)
+imgDatos::imgDatos(cv::Mat* imagenRef)
 	:
-	conect(imagenRef.size(), CV_8UC1, cv::Scalar(0)), // Los miembros de la clase usan su constructor aquí. Usarlo en el cuerpo
-	numObj(imagenRef.size(), CV_8UC1, cv::Scalar(0)), // del constructor hace que se interpreten como una función miembro
-	contorno(imagenRef.size(), CV_8UC3, cv::Scalar({ 0,0,0 })) // crea la matriz de contornos del objeto más grande.
+	conect((*imagenRef).size(), CV_8UC1, cv::Scalar(0)), // Los miembros de la clase usan su constructor aquí. Usarlo en el cuerpo
+	numObj((*imagenRef).size(), CV_8UC1, cv::Scalar(0)), // del constructor hace que se interpreten como una función miembro
+	contorno((*imagenRef).size(), CV_8UC3, cv::Scalar({ 0,0,0 })) // crea la matriz de contornos del objeto más grande.
 {
 }
 

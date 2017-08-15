@@ -104,3 +104,64 @@ void ImagenBandas(cv::Mat imagen)
 	cv::waitKey(0);
 
 }
+
+cv::Mat DibujaEje(cv::Mat * imagenRef, cv::Vec2f * centroide, float angulo)
+{
+	cv::Mat Eje((*imagenRef).size(), CV_8UC1, cv::Scalar(0)); // Imagen matriz que mostrará la recta del eje principal
+	float PosEjePrin; // Posición columna del eje principal
+	
+	
+	float PosEjePrinAnt; // Sirve para rellenar las columnas que se quedan vacías en una primera pasada. Al analizar por fila, rectas horizontales
+	// pierden la mayor parte de sus valores.
+	
+	// El siguiente if asigna el primer valor que tendrá la posición de la columna. Busca el 0 del eje en su corte con la parte superior de la
+	// imagen.
+	// Si el eje corta dentro de la imagen, tendrá su propio valor de columna.
+	// Si el eje corta por debajo del 0 de la imagen, la primera posición será el 0.
+	// El último caso en el que el eje corta a la derecha de la imagen (por encima del mayor valor de columna), la primera posición será el valor
+	// de la columna.
+	if (int(std::tan(angulo)*(0 - (*centroide).val[0]) + (*centroide).val[1]) >= 0 && 
+		int(std::tan(angulo)*(0 - (*centroide).val[0]) + (*centroide).val[1]) <=Eje.cols)
+	{
+		PosEjePrinAnt = std::tan(angulo)*(0 - (*centroide).val[0]) + (*centroide).val[1];
+	}
+	else if (int(std::tan(angulo)*(0 - (*centroide).val[0]) + (*centroide).val[1]) < 0)
+	{
+		PosEjePrinAnt = 0;
+	}
+	else
+	{
+		PosEjePrinAnt = Eje.cols;
+	}
+	assert(PosEjePrinAnt >= 0); // Comprobamos que el primer punto columna no quede fuera de la imagen.
+	assert(PosEjePrinAnt <= Eje.cols);
+
+	for (int i = 0; i < Eje.rows; i++) // bucle por todas las posiciones fila para localizar la coordenada columna
+	{
+		PosEjePrin = std::tan(angulo)*(i - (*centroide).val[0]) + (*centroide).val[1];
+		// Hay que comprobar que el punto del eje está dentro de la imagen antes de dibujarlo.
+		if (int(PosEjePrin) >= 0 && int(PosEjePrin) < Eje.cols)
+		{
+			Eje.at<unsigned char>(i, int(PosEjePrin)) = 255; // Dibuja el punto de la fila
+			
+			if (std::abs(int(PosEjePrin) - int(PosEjePrinAnt)) > 1)
+			{
+				for (int j = 0; j < abs(int(PosEjePrin) - int(PosEjePrinAnt))-1; j++)
+				{
+					if (PosEjePrin > PosEjePrinAnt)
+					{
+						Eje.at<unsigned char>(int(((int(PosEjePrinAnt) + 1 + j) - (*centroide).val[1]) / tan(angulo) + (*centroide).val[0]), int(PosEjePrinAnt) + 1 + j) = 255;
+					}
+					else
+					{
+						Eje.at<unsigned char>(int(((int(PosEjePrinAnt) - 1 - j) - (*centroide).val[1]) / tan(angulo) + (*centroide).val[0]), int(PosEjePrinAnt) - 1 - j) = 255;
+					}
+				}
+			}
+			PosEjePrinAnt = PosEjePrin;
+		}
+	}
+	
+
+	return Eje;
+}

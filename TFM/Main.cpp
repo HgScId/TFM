@@ -23,17 +23,17 @@ int main()
 	{
 		// Cargamos imagen
 		imagen = cv::imread("Fotos\\Tv"+std::to_string(imgarchivo)+".bmp");
-		if (imagen.dims == 0) // Saltarse la foto 6 que no está. Si no carga foto, omites el contador.
-		continue;
+		if (imagen.dims == 0) continue; // Saltarse la foto 6 que no está. Si no carga foto, omites el contador.
+		
 	
 		// Transformación a escala de grises
 		cv::cvtColor(imagen, imagenGris, CV_BGR2GRAY);
-		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_1.bmp", imagenGris);
+		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_1.bmp", imagenGris);
 
 
 		// Umbralización con Otsu
 		cv::threshold(imagenGris, imagenUmbral, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
-		cv::imwrite("ImagenSalida\\prueba"+ std::to_string(imgarchivo) +"_2.bmp", imagenUmbral);
+		//cv::imwrite("ImagenSalida\\prueba"+ std::to_string(imgarchivo) +"_2.bmp", imagenUmbral);
 
 		// Invertir umbralización 255 -> 0 y 0 -> 255
 		for (int i = 0; i <= imagenUmbral.u->size; i++) // imagenUmbral.u->size elementos de la matriz
@@ -47,10 +47,12 @@ int main()
 				imagenUmbral.data[i] = 0;
 			}
 		}
-		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_3.bmp", imagenUmbral);
+		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_3.bmp", imagenUmbral);
 		int prueba= imagen.channels();
-		//  Formar objetos 
-		imgDatos datos(imagenUmbral);
+		
+		
+		///  FORMACIÓN DE OBJETOS 
+		imgDatos datos(&imagenUmbral);
 		for (int i = 0; i < imagenUmbral.rows; i++)
 		{
 			for (int j = 0; j < imagenUmbral.cols; j++)
@@ -66,8 +68,8 @@ int main()
 				}
 			}
 		}
-		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_4.bmp", datos.conect);
-		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_5.bmp", datos.numObj*255/datos.contObj);
+		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_4.bmp", datos.conect);
+		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_5.bmp", datos.numObj*255/datos.contObj);
 		
 		/// DIBUJAR CENTROIDES DE LOS OBJETOS UMBRALIZADOS
 		// Imagen negra donde se albergan los centroides. Será una imagen BGR de ceros donde los centroides se dibujarán en rojo.
@@ -80,7 +82,7 @@ int main()
 			imgCentroidesSep[2].at<unsigned char>(int(datos.centroide[i].val[0]), int(datos.centroide[i].val[1])) =255;
 		}
 		cv::merge(imgCentroidesSep, 3, imgCentroides); // se vuelven a unir modificadas
-		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_6.bmp", imgCentroides);
+		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_6.bmp", imgCentroides);
 
 		/// MOMENTOS DE INERCIA DEL INSECTO
 		// Localización del objeto más grande
@@ -115,7 +117,10 @@ int main()
 			datos.AngGiro = std::atan((2 * datos.InerciaXY) / (datos.InerciaY - datos.InerciaX)) / 2; //ángulo en radianes
 
 		}
-		datos.AngGiro = 360.0f * datos.AngGiro / (2.0f * 3.141592f);
+		{
+			float AngGiroGrad = 360.0f * datos.AngGiro / (2.0f * 3.141592f);
+			int a=0;
+		}
 
 		/// DIBUJAR CONTORNO
 		cv::Mat contornoSep[3];
@@ -139,8 +144,6 @@ int main()
 		/// DIFERENCIAR CONTORNO EXTERNO DE INTERNO: ROJO EXTERNO, VERDE INTERNO, INSECTO AZUL
 		assert(datos.posPix[0].val[0] - 1 > 0); // Si falla esto significa que la figura está pegada en el extremo y el borde se corta
 		// en la foto
-		cv::Vec2i posIni = { datos.posPix[0].val[0]-1,datos.posPix[0].val[1] }; // lo posición inicial corresponde con el primer punto 
-		// detectado en posPix subiendo la fila en una posición
 		std::queue<cv::Vec2i> vecRellenaCont;
 		vecRellenaCont.push({ datos.posPix[0].val[0] - 1,datos.posPix[0].val[1] }); // se introduce la posición inicial del contorno
 		contornoSep[1].at<unsigned char>(datos.posPix[0].val[0] - 1, datos.posPix[0].val[1]) = 0; // le quito el verde
@@ -175,8 +178,14 @@ int main()
 		}
 		
 		cv::merge(contornoSep, 3, datos.contorno);
-		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_7.bmp", datos.contorno);
-		
+		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_7.bmp", datos.contorno);
+
+
+		/// DIBUJA EJE PRINCIPAL
+
+		cv::Mat EjePrincipal;
+		EjePrincipal=DibujaEje(&imagen, &datos.centroide[n], datos.AngGiro);
+		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_8.bmp", EjePrincipal);
 
 	}	
 

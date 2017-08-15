@@ -11,3 +11,7 @@ void DibujaHist(cv::Mat imagen);
 /// 2º MOSTRAR UNA IMAGEN POR BANDAS EN ESCALA DE GRISES
 
 void ImagenBandas(cv::Mat imagen);
+
+/// 3º DIBUJA EJE PRINCIPAL DE INERCIA Y LO DEVUELVE COMO IMAGEN
+
+cv::Mat DibujaEje(cv::Mat* imagenRef, cv::Vec2f* centroide, float angulo);
