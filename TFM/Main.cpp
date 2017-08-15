@@ -110,7 +110,7 @@ int main()
 		// Se podría sumar 90º para corregir en el caso de requerirlo y así sería siempre el eje X el alineado con el insecto.
 		if (datos.InerciaX > datos.InerciaY)
 		{
-			datos.AngGiro = (3.141592f)/2.0f-std::atan((2.0f * datos.InerciaXY) / (datos.InerciaX - datos.InerciaY)) / 2.0f; //ángulo en radianes
+			datos.AngGiro = (3.141593f)/2.0f-std::atan((2.0f * datos.InerciaXY) / (datos.InerciaX - datos.InerciaY)) / 2.0f; //ángulo en radianes
 		}
 		else
 		{
@@ -118,7 +118,7 @@ int main()
 
 		}
 		{
-			float AngGiroGrad = 360.0f * datos.AngGiro / (2.0f * 3.141592f);
+			float AngGiroGrad = 360.0f * datos.AngGiro / (2.0f * 3.141593f);
 			int a=0;
 		}
 
@@ -183,10 +183,10 @@ int main()
 
 		/// DIBUJA EJE PRINCIPAL
 
-		cv::Mat EjePrincipal;
-		EjePrincipal=DibujaEje(&imagen, &datos.centroide[n], datos.AngGiro);
-		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_8.bmp", EjePrincipal);
-
+		cv::Mat Ejes(imagen.size(), CV_8UC1, cv::Scalar(0)); // Imagen matriz que mostrará los ejes principales de inercia
+		DibujaEje(&Ejes, &datos.centroide[n], datos.AngGiro);
+		DibujaEjeSec(&Ejes, &datos.centroide[n], datos.AngGiro);
+		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_8.bmp", Ejes);
 	}	
 
 
