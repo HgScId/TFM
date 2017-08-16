@@ -181,12 +181,35 @@ int main()
 		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_7.bmp", datos.contorno);
 
 
-		/// DIBUJA EJE PRINCIPAL
+		/// DIBUJA EJES PRINCIPALES DE INERCIA
 
-		cv::Mat Ejes(imagen.size(), CV_8UC1, cv::Scalar(0)); // Imagen matriz que mostrará los ejes principales de inercia
-		DibujaEje(&Ejes, &datos.centroide[n], datos.AngGiro);
-		DibujaEjeSec(&Ejes, &datos.centroide[n], datos.AngGiro);
-		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_8.bmp", Ejes);
+		cv::Mat EjePrin(imagen.size(), CV_8UC1, cv::Scalar(0)); // Imagen matriz que mostrará los ejes principales de inercia
+		cv::Mat EjeSec(imagen.size(), CV_8UC1, cv::Scalar(0)); // Imagen matriz que mostrará los ejes principales de inercia
+		DibujaEje(&EjePrin, &datos.centroide[n], datos.AngGiro);
+		DibujaEjeSec(&EjeSec, &datos.centroide[n], datos.AngGiro);
+		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_8.bmp", Ejes);
+
+		/// BUSCAR INTERSECCIÓN CONTORNO EJE PRINCIPAL
+		std::vector<cv::Vec2i> intersecc;
+		for (int i = 0; i < EjePrin.rows; i++)
+		{
+			for (int j = 0; j < EjePrin.cols; j++)
+			{
+				int testcol1 = 1, testcol2 = 1;
+				if (j - testcol1 < 0) testcol1 = 0;
+				if (j + testcol2 >= EjePrin.cols) testcol2 = 0;
+				if (datos.contorno.at<cv::Vec3b>(i, j)[2] == 255 && EjePrin.at<unsigned char>(i, j) == 255 ||
+					datos.contorno.at<cv::Vec3b>(i, j+testcol2)[2] == 255 && EjePrin.at<unsigned char>(i, j) == 255 || //Estas dos comprobaciones son para 
+					datos.contorno.at<cv::Vec3b>(i, j-testcol1)[2] == 255 && EjePrin.at<unsigned char>(i, j) == 255) //casos en los que se cruzan. Ejemplo imagen 3
+				{
+					if (intersecc.size() >= 2)	intersecc.pop_back();
+					intersecc.push_back({ i,j });
+				}
+			}
+		}
+		float dist = std::sqrt(std::pow((intersecc[0].val[0] - intersecc[1].val[0]), 2) + std::pow((intersecc[0].val[1] - intersecc[1].val[1]-2), 2)); 
+		// Ese -2 sirve para eliminar las dos unidades columnas añadidas en cada medición para evitar los cruces de líneas.
+		std::cout << "La distancia de cola a cabeza en la imagen numero " << imgarchivo << " es de " << dist << " pixeles.\n";
 	}	
 
 

@@ -216,3 +216,18 @@ stop:;
 }
 while (posActual != posIni);
 */
+
+
+
+/// IMPORTANTE!!!!
+/// FORMA DE SEÑALAR EN UNA MATRIZ DE TRES CANALES!!!
+cv::Mat imgCentroides(imagen.size(), CV_8UC3, cv::Scalar({ 0,0,0 }));
+cv::Vec3b& señala = imgCentroides.at<cv::Vec3b>(0, 0);
+señala[0] = 255;
+señala[1] = 100;
+señala[2] = 25;
+unsigned char c1 = imgCentroides.at<cv::Vec3b>(0, 0)[0];
+unsigned char c2 = imgCentroides.at<cv::Vec3b>(0, 0)[1];
+unsigned char c3 = imgCentroides.at<cv::Vec3b>(0, 0)[2];
+/// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
