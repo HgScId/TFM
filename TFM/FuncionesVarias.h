@@ -14,8 +14,8 @@ void ImagenBandas(cv::Mat imagen);
 
 /// 3º DIBUJA EJE PRINCIPAL DE INERCIA Y LO DEVUELVE COMO IMAGEN
 
-void DibujaEje(cv::Mat* imagenRef, cv::Vec2f* centroide, float angulo);
+void DibujaEje(cv::Mat& imagenRef, cv::Vec2f& centroide, float angulo);
 
 /// 4º DIBUJA EJE SECUNDARIO
 
-void DibujaEjeSec(cv::Mat* imagenRef, cv::Vec2f* centroide, float angulo);
+void DibujaEjeSec(cv::Mat& imagenRef, cv::Vec2f& centroide, float angulo);

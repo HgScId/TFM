@@ -105,55 +105,57 @@ void ImagenBandas(cv::Mat imagen)
 
 }
 
-void DibujaEje(cv::Mat * Ejes, cv::Vec2f * centroide, float angulo)
-{
-	float PosEjePrin; // Posición columna del eje principal
+void DibujaEje(cv::Mat& Ejes, cv::Vec2f& centroide, float angulo)
+{	// Se toma el centroide como punto y la tangente del ángulo de los ejes principales de inercia como pendiente de la recta.
 	
 	
-	float PosEjePrinAnt; // Sirve para rellenar las columnas que se quedan vacías en una primera pasada. Al analizar por fila, rectas horizontales
-	// pierden la mayor parte de sus valores.
+	int PosEjePrin; // Posición columna del eje principal
+	int PosEjePrinAnt; // Sirve para rellenar las columnas que se quedan vacías en una primera pasada.
+	// Al analizar por fila, rectas horizontales pierden la mayor parte de sus valores.
 	
-	// El siguiente if asigna el primer valor que tendrá la posición de la columna. Busca el 0 del eje en su corte con la parte superior de la
-	// imagen.
+	// El siguiente if asigna el primer valor que tendrá la posición de la columna. Busca el 0 del eje en su corte con la parte superior de 
+	// la imagen.
 	// Si el eje corta dentro de la imagen, tendrá su propio valor de columna.
-	// Si el eje corta por debajo del 0 de la imagen, la primera posición será el 0.
-	// El último caso en el que el eje corta a la derecha de la imagen (por encima del mayor valor de columna), la primera posición será el valor
-	// de la columna.
-	if (int(std::tan(angulo)*(0 - (*centroide).val[0]) + (*centroide).val[1]) >= 0 && 
-		int(std::tan(angulo)*(0 - (*centroide).val[0]) + (*centroide).val[1]) <=(*Ejes).cols)
+	// Si el eje corta por debajo del 0 de la imagen, la primera posición que se dibujará será el 0.
+	// El último caso en el que el eje corta a la derecha de la imagen (por encima del mayor valor de columna), la primera posición será el 
+	// valor de la última posición columna.
+	if (std::tan(angulo)*(0 - centroide.val[0]) + centroide.val[1] >= 0 && 
+		std::tan(angulo)*(0 - centroide.val[0]) + centroide.val[1] <= Ejes.cols)
 	{
-		PosEjePrinAnt = std::tan(angulo)*(0 - (*centroide).val[0]) + (*centroide).val[1];
+		PosEjePrinAnt = int(std::tan(angulo)*(0 - centroide.val[0]) + centroide.val[1]);
 	}
-	else if (int(std::tan(angulo)*(0 - (*centroide).val[0]) + (*centroide).val[1]) < 0)
+	else if (int(std::tan(angulo)*(0 - centroide.val[0]) + centroide.val[1]) < 0)
 	{
 		PosEjePrinAnt = 0;
 	}
 	else
 	{
-		PosEjePrinAnt = (*Ejes).cols;
+		PosEjePrinAnt = Ejes.cols;
 	}
-	assert(PosEjePrinAnt >= 0); // Comprobamos que el primer punto columna no quede fuera de la imagen.
-	assert(PosEjePrinAnt <= (*Ejes).cols);
+	assert(PosEjePrinAnt >= 0 && PosEjePrinAnt <= Ejes.cols); // Comprobamos que el primer punto columna no quede fuera de la imagen.
 
-	for (int i = 0; i < (*Ejes).rows; i++) // bucle por todas las posiciones fila para localizar la coordenada columna
+	
+	for (int i = 0; i < Ejes.rows; i++) // bucle por todas las posiciones fila para localizar la coordenada columna del eje.
 	{
-		PosEjePrin = std::tan(angulo)*(i - (*centroide).val[0]) + (*centroide).val[1];
+		PosEjePrin = int(std::tan(angulo)*(i - centroide.val[0]) + centroide.val[1]);
+		
 		// Hay que comprobar que el punto del eje está dentro de la imagen antes de dibujarlo.
-		if (int(PosEjePrin) >= 0 && int(PosEjePrin) < (*Ejes).cols)
+		if (PosEjePrin >= 0 && PosEjePrin < Ejes.cols)
 		{
-			(*Ejes).at<unsigned char>(i, int(PosEjePrin)) = 255; // Dibuja el punto de la fila
+			Ejes.at<unsigned char>(i, PosEjePrin) = 255; // Dibuja el punto de la fila
 			
-			if (std::abs(int(PosEjePrin) - int(PosEjePrinAnt)) > 1)
+			// Si en el salto con la fila anterior se han pasado múltiples columnas se procede a rellenar las que no han coloreado un píxel
+			if (std::abs(PosEjePrin - PosEjePrinAnt) > 1) // el abs sirve para eliminar el problema de que haya rectas crecientes y decrecientes
 			{
-				for (int j = 0; j < abs(int(PosEjePrin) - int(PosEjePrinAnt))-1; j++)
+				for (int j = 0; j < abs(PosEjePrin - PosEjePrinAnt)-1; j++)
 				{
-					if (PosEjePrin > PosEjePrinAnt)
+					if (PosEjePrin > PosEjePrinAnt) // En el caso de recta decreciente
 					{
-						(*Ejes).at<unsigned char>(int(((int(PosEjePrinAnt) + 1 + j) - (*centroide).val[1]) / tan(angulo) + (*centroide).val[0]), int(PosEjePrinAnt) + 1 + j) = 255;
+						Ejes.at<unsigned char>(int(((PosEjePrinAnt + 1 + j) - centroide.val[1]) / tan(angulo) + centroide.val[0]), PosEjePrinAnt + 1 + j) = 255;
 					}
-					else
+					else // Caso de recta creciente
 					{
-						(*Ejes).at<unsigned char>(int(((int(PosEjePrinAnt) - 1 - j) - (*centroide).val[1]) / tan(angulo) + (*centroide).val[0]), int(PosEjePrinAnt) - 1 - j) = 255;
+						Ejes.at<unsigned char>(int(((PosEjePrinAnt - 1 - j) - centroide.val[1]) / tan(angulo) + centroide.val[0]), PosEjePrinAnt - 1 - j) = 255;
 					}
 				}
 			}
@@ -162,7 +164,7 @@ void DibujaEje(cv::Mat * Ejes, cv::Vec2f * centroide, float angulo)
 	}
 }
 
-void DibujaEjeSec(cv::Mat * Ejes, cv::Vec2f * centroide, float angulo)
+void DibujaEjeSec(cv::Mat& Ejes, cv::Vec2f& centroide, float angulo)
 {
 	DibujaEje(Ejes, centroide, angulo + 3.141593f / 2.0f);
 }
