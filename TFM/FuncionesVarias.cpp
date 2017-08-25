@@ -6,7 +6,7 @@
 #include<iostream>
 
 // Utiliza una imagen en color
-void DibujaHist(cv::Mat imagen)
+void DibujaHistColor(cv::Mat& imagen)
 {
 	// Dividir las imágenes y representarlas en escala de grises
 	std::vector<cv::Mat> imagenBandas;
@@ -24,27 +24,7 @@ void DibujaHist(cv::Mat imagen)
 	calcHist(&imagenBandas[0], 1, 0, cv::Mat(), b_hist, 1, &histSize, &histRange, uniform, accumulate);
 	calcHist(&imagenBandas[1], 1, 0, cv::Mat(), g_hist, 1, &histSize, &histRange, uniform, accumulate);
 	calcHist(&imagenBandas[2], 1, 0, cv::Mat(), r_hist, 1, &histSize, &histRange, uniform, accumulate);
-	for (int i = 0; i <= 255; i++)
-	{
-		std::cout << int(b_hist.data[i]) << " ";
-	}
-	std::cout << "\n ACABA AZUL\n";
-	for (int i = 256; i <= 1023; i++)
-	{
-		std::cout << int(b_hist.data[i]) << " ";
-	}
-	std::cout << "\n ACABA AZUL\n";
-
-	for (int i = 0; i <= 1023; i++)
-	{
-		std::cout << int(g_hist.data[i]) << " ";
-	}
-	std::cout << "\n ACABA AZUL\n";
-	for (int i = 0; i <= 1023; i++)
-	{
-		std::cout << int(r_hist.data[i]) << " ";
-	}
-
+	
 	// Draw the histograms for B, G and R
 	int hist_w = 800; int hist_h = 600;
 	int bin_w = cvRound((double)hist_w / histSize);
@@ -80,11 +60,49 @@ void DibujaHist(cv::Mat imagen)
 	imshow("Histograma Verde", histImageG);
 	imshow("Histograma Rojo", histImageR);
 	cv::waitKey(0);
-	cv::imwrite("Histograma.bmp", histImageB);
 }
 
+
+// Dibuja histograma de imagen de grises.
+void DibujaHistGris(cv::Mat& imagen)
+{
+	int histSize = 256;
+	float range[] = { 0, 256 };
+	const float* histRange = { range };
+	bool uniform = true; bool accumulate = false;
+
+	cv::Mat gris_hist;
+
+	// Compute the histogram:
+	calcHist(&imagen, 1, 0, cv::Mat(), gris_hist, 1, &histSize, &histRange, uniform, accumulate);
+		
+	// Draw the histogram
+	int hist_w = 800; int hist_h = 600;
+	int bin_w = cvRound((double)hist_w / histSize);
+
+	cv::Mat histImageGris(hist_h, hist_w, CV_8UC3, cv::Scalar(0, 0, 0));
+	
+	// Normalize the result to [ 0, histImage.rows ]
+	normalize(gris_hist, gris_hist, 0, histImageGris.rows, cv::NORM_MINMAX, -1, cv::Mat());
+	
+
+	// Draw
+	for (int i = 1; i < histSize; i++)
+	{
+		line(histImageGris, cv::Point(bin_w*(i - 1), hist_h - cvRound(gris_hist.at<float>(i - 1))),
+			cv::Point(bin_w*(i), hist_h - cvRound(gris_hist.at<float>(i))),
+			cv::Scalar(255, 255, 255), 2, 8, 0);
+	}
+	// Display
+	cv::namedWindow("Histograma Grises", CV_WINDOW_AUTOSIZE);
+
+	imshow("Histograma Grises", histImageGris);
+	cv::waitKey(0);
+}
+
+
 // Ver una imagen en color separada en sus tres bandas
-void ImagenBandas(cv::Mat imagen)
+void ImagenBandas(cv::Mat& imagen)
 {
 	std::vector<cv::Mat> imagenBandas;
 	cv::split(imagen, imagenBandas);
@@ -103,68 +121,4 @@ void ImagenBandas(cv::Mat imagen)
 	imshow("Banda Rojo", imagenBandas[2]);
 	cv::waitKey(0);
 
-}
-
-void DibujaEje(cv::Mat& Ejes, cv::Vec2f& centroide, float angulo)
-{	// Se toma el centroide como punto y la tangente del ángulo de los ejes principales de inercia como pendiente de la recta.
-	
-	
-	int PosEjePrin; // Posición columna del eje principal
-	int PosEjePrinAnt; // Sirve para rellenar las columnas que se quedan vacías en una primera pasada.
-	// Al analizar por fila, rectas horizontales pierden la mayor parte de sus valores.
-	
-	// El siguiente if asigna el primer valor que tendrá la posición de la columna. Busca el 0 del eje en su corte con la parte superior de 
-	// la imagen.
-	// Si el eje corta dentro de la imagen, tendrá su propio valor de columna.
-	// Si el eje corta por debajo del 0 de la imagen, la primera posición que se dibujará será el 0.
-	// El último caso en el que el eje corta a la derecha de la imagen (por encima del mayor valor de columna), la primera posición será el 
-	// valor de la última posición columna.
-	if (std::tan(angulo)*(0 - centroide.val[0]) + centroide.val[1] >= 0 && 
-		std::tan(angulo)*(0 - centroide.val[0]) + centroide.val[1] <= Ejes.cols)
-	{
-		PosEjePrinAnt = int(std::tan(angulo)*(0 - centroide.val[0]) + centroide.val[1]);
-	}
-	else if (int(std::tan(angulo)*(0 - centroide.val[0]) + centroide.val[1]) < 0)
-	{
-		PosEjePrinAnt = 0;
-	}
-	else
-	{
-		PosEjePrinAnt = Ejes.cols;
-	}
-	assert(PosEjePrinAnt >= 0 && PosEjePrinAnt <= Ejes.cols); // Comprobamos que el primer punto columna no quede fuera de la imagen.
-
-	
-	for (int i = 0; i < Ejes.rows; i++) // bucle por todas las posiciones fila para localizar la coordenada columna del eje.
-	{
-		PosEjePrin = int(std::tan(angulo)*(i - centroide.val[0]) + centroide.val[1]);
-		
-		// Hay que comprobar que el punto del eje está dentro de la imagen antes de dibujarlo.
-		if (PosEjePrin >= 0 && PosEjePrin < Ejes.cols)
-		{
-			Ejes.at<unsigned char>(i, PosEjePrin) = 255; // Dibuja el punto de la fila
-			
-			// Si en el salto con la fila anterior se han pasado múltiples columnas se procede a rellenar las que no han coloreado un píxel
-			if (std::abs(PosEjePrin - PosEjePrinAnt) > 1) // el abs sirve para eliminar el problema de que haya rectas crecientes y decrecientes
-			{
-				for (int j = 0; j < abs(PosEjePrin - PosEjePrinAnt)-1; j++)
-				{
-					if (PosEjePrin > PosEjePrinAnt) // En el caso de recta decreciente
-					{
-						Ejes.at<unsigned char>(int(((PosEjePrinAnt + 1 + j) - centroide.val[1]) / tan(angulo) + centroide.val[0]), PosEjePrinAnt + 1 + j) = 255;
-					}
-					else // Caso de recta creciente
-					{
-						Ejes.at<unsigned char>(int(((PosEjePrinAnt - 1 - j) - centroide.val[1]) / tan(angulo) + centroide.val[0]), PosEjePrinAnt - 1 - j) = 255;
-					}
-				}
-			}
-			PosEjePrinAnt = PosEjePrin;
-		}
-	}
-}
-
-void DibujaEjeSec(cv::Mat& Ejes, cv::Vec2f& centroide, float angulo)
-{
-	DibujaEje(Ejes, centroide, angulo + 3.141593f / 2.0f);
 }

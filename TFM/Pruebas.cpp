@@ -231,3 +231,36 @@ unsigned char c2 = imgCentroides.at<cv::Vec3b>(0, 0)[1];
 unsigned char c3 = imgCentroides.at<cv::Vec3b>(0, 0)[2];
 /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+/// SEGMENTACIÓN CON OTSU POR BANDAS. MEJORA DEL AZUL EN LA DELIMITACIÓN.
+cv::Mat imagenSep[3];
+cv::split(imagen, imagenSep);
+cv::Mat imagenUmbralB;
+cv::Mat imagenUmbralG;
+cv::Mat imagenUmbralR;
+
+
+cv::threshold(imagenSep[0], imagenUmbralB, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+cv::threshold(imagenSep[1], imagenUmbralG, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+cv::threshold(imagenSep[2], imagenUmbralR, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+
+cv::Mat resta(imagen.size(), CV_8UC3, cv::Scalar({ 0,0,0 }));
+
+for (int i = 0; i < imagen.rows; i++)
+{
+	for (int j = 0; j < imagen.cols; j++)
+	{
+		int numB = imagenSep[0].at<unsigned char>(i, j) - imagenUmbralR.at<unsigned char>(i, j);
+		int numG = imagenSep[1].at<unsigned char>(i, j) - imagenUmbralR.at<unsigned char>(i, j);
+		int numR = imagenSep[2].at<unsigned char>(i, j) - imagenUmbralR.at<unsigned char>(i, j);
+		if (numB < 0) numB = 0;
+		if (numG < 0) numG = 0;
+		if (numR < 0) numR = 0;
+		resta.at<cv::Vec3b>(i, j)[0] = numB;
+		resta.at<cv::Vec3b>(i, j)[1] = numG;
+		resta.at<cv::Vec3b>(i, j)[2] = numR;
+	}
+}
+cv::imwrite("ImagenSalida\\resta" + std::to_string(imgarchivo) + "R.bmp", resta);

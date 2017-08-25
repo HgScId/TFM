@@ -19,7 +19,8 @@ public:
 	int tamObj; // identifica el tamaño en píxeles del objeto más grande
 	cv::Vec2f centroide; // Se trata de una pareja de floats que localizan la posición del centroide del objeto más grande de la imagen
 	std::vector<cv::Vec2i> posPix; // almacena las posiciones de los píxeles del objeto más grande.
-	float InerciaX, InerciaY, InerciaXY, AngGiro; // Momento de inercia central (pasa por el centroide) del eje X (eje vertical descendente), 
+	float InerciaX, InerciaY, InerciaXY;
+	double AngGiro; // Momento de inercia central (pasa por el centroide) del eje X (eje vertical descendente), 
 	// del eje Y (eje horizontal hacia la derecha) y ángulo de rotación de los ejes para transformar en ejes principales de inercia.
 	cv::Mat contorno; // Matriz que identificará el controno externo e interno del objeto principal de cada imagen
 };

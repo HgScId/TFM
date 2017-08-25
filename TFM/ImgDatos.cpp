@@ -5,12 +5,15 @@
 #include<assert.h>
 #include<queue>
 
+#define PI 3.141592653589793238463
+
+
 imgDatos::imgDatos(cv::Mat& imagenRef)
 	:
 	conect(imagenRef.size(), CV_8UC1, cv::Scalar(0)), // Los miembros de la clase usan su constructor aquí. Usarlo en el cuerpo
 	contorno(imagenRef.size(), CV_8UC3, cv::Scalar({ 0,0,0 })) // crea la matriz de contornos del objeto más grande.
 {
-	/// FORMACIÓN DE OBJETOS Y SELECCIÓN DEL MAYOR
+	/// FORMACIÓN DE OBJETOS Y SELECCIÓN DEL MAYOR (INSECTO)
 	for (int i = 0; i < imagenRef.rows; i++)
 	{
 		for (int j = 0; j < imagenRef.cols; j++)
@@ -90,18 +93,16 @@ imgDatos::imgDatos(cv::Mat& imagenRef)
 	}
 
 	/// ANGULO PARA EJES PRINCIPALES
-	// El símbolo está configurado para que el giro de los ejes en sentido de las agujas del reloj siempre sea negativo y giro antihorario 
-	// positivo. Se ha configurado para que el eje fila (eje X) coincida con la dirección principal del insecto.
+	// El angulo realiza el menor giro de los ejes X e Y para alcanzar la posición de ejes principales de inercia.
+	// Sentido horario - y sentido antihorario +.
+	AngGiro = -std::atan((-2 * InerciaXY) / (InerciaY - InerciaX)) / 2;
 	
+	// Se ajusta el angulo de giro para que el eje X (eje fila) siempre tengo el momento principal de inercia
+	// más pequeño (alineado con el insecto). Para el otro eje principal habría que añadirle PI/2 más.
 	if (InerciaX > InerciaY)
 	{
-		AngGiro = (3.141593f) / 2.0f - std::atan((2.0f * InerciaXY) / (InerciaX - InerciaY)) / 2.0f; //ángulo en radianes
+		AngGiro += (PI / 2);
 	}
-	else
-	{
-		AngGiro = std::atan((2 * InerciaXY) / (InerciaY - InerciaX)) / 2; //ángulo en radianes
-	}
-
 	
 	/// CONTORNO EXTERIOR E INTERIOR
 	for (int k = 0; k < posPix.size(); k++) // bucle por cada posición del vector de coordenadas del insecto

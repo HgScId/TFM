@@ -134,11 +134,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Eje.cpp" />
     <ClCompile Include="FuncionesVarias.cpp" />
     <ClCompile Include="ImgDatos.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Eje.h" />
     <ClInclude Include="FuncionesVarias.h" />
     <ClInclude Include="ImgDatos.h" />
   </ItemGroup>
