@@ -19,10 +19,10 @@ public:
 public:
 	
 	/// DIBUJA EJE PRINCIPAL DE INERCIA Y LO DEVUELVE COMO IMAGEN
-	void DibujaEje(Eje& eje, cv::Vec2f& centroide, double angulo);
+	void DibujaEje(Eje& eje, cv::Vec2d& centroide, double angulo);
 
 	/// DIBUJA EJE SECUNDARIO
-	void DibujaEjeSec(Eje& eje, cv::Vec2f& centroide, double angulo);
+	void DibujaEjeSec(Eje& eje, cv::Vec2d& centroide, double angulo);
 
 	/// INTERSECCIÓN EJES - CONTORNO
 	double Intersecc(Eje& eje, cv::Mat& contorno); // Intersección eje longitudinal

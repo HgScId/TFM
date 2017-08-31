@@ -5,7 +5,7 @@
 #include <vector>
 #include<iostream>
 
-// Utiliza una imagen en color
+// Dibuja histograma de una imagen en color
 void DibujaHistColor(cv::Mat& imagen)
 {
 	// Dividir las imágenes y representarlas en escala de grises

@@ -1,5 +1,8 @@
 #include "Eje.h"
 
+#define PI 3.141592653589793238463
+
+
 Eje::Eje(cv::Mat& imagenRef)
 	:
 	mat(imagenRef.size(), CV_8UC1, cv::Scalar(0)) // Los miembros de la clase usan su constructor aquí. Usarlo en el cuerpo
@@ -7,7 +10,7 @@ Eje::Eje(cv::Mat& imagenRef)
 }
 
 
-void Eje::DibujaEje(Eje& eje, cv::Vec2f& centroide, double angulo)
+void Eje::DibujaEje(Eje& eje, cv::Vec2d& centroide, double angulo)
 {	
 	if (std::tan(angulo) > 0) // recta creciente (decreciente desde el punto de vista, la fila 0 corta por la izquierda)
 	{
@@ -112,9 +115,9 @@ void Eje::DibujaEje(Eje& eje, cv::Vec2f& centroide, double angulo)
 	}
 }
 
-void Eje::DibujaEjeSec(Eje& eje, cv::Vec2f& centroide, double angulo)
+void Eje::DibujaEjeSec(Eje& eje, cv::Vec2d& centroide, double angulo)
 {
-	DibujaEje(eje, centroide, angulo + 3.141593f / 2.0f);
+	DibujaEje(eje, centroide, angulo + PI/2);
 }
 
 double Eje::Intersecc(Eje& eje, cv::Mat& contorno)
@@ -145,7 +148,7 @@ double Eje::Intersecc(Eje& eje, cv::Mat& contorno)
 
 cv::Vec2d Eje::InterseccSec(const cv::Vec2f & centroide, const double angulo, const double longPrin)
 {
-	float angTrans = angulo + 3.141593f / 2.0f; // ángulo de la recta del eje transversal.
+	double angTrans = angulo + 3.141593f / 2.0f; // ángulo de la recta del eje transversal.
 	cv::Vec2d longitudes = { 0.0,0.0 };
 
 

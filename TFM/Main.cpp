@@ -50,14 +50,16 @@ int main()
 		
 		///  FORMACIÓN DE OBJETOS 
 		imgDatos datos(imagenUmbral); // Se crea el objeto de la clase de datos de la imagen que almacenará la información extraída.
-
+		datos.perfilamiento(datos.contorno, datos.posPix);
+		cv::imwrite("ImagenSalida\\" + std::to_string(imgarchivo) + "imagenperfilada.bmp", datos.contorno);
 		
+		/*
 		/// DIBUJAR CENTROIDE DEL OBJETO PRINCIPAL
 		// Imagen negra donde se albergan los centroides. Será una imagen BGR de ceros donde los centroides se dibujarán en rojo.
 		cv::Mat imgCentroide(imagen.size(), CV_8UC3, cv::Scalar({ 0,0,0 }));
-		imgCentroide.at<cv::Vec3b>(int(datos.centroide.val[0]), int(datos.centroide.val[1]))[0] = 0;
-		imgCentroide.at<cv::Vec3b>(int(datos.centroide.val[0]), int(datos.centroide.val[1]))[1] = 0;
-		imgCentroide.at<cv::Vec3b>(int(datos.centroide.val[0]), int(datos.centroide.val[1]))[2] = 255;
+		imgCentroide.at<cv::Vec3b>(int(datos.geometriaImagen.centroide.val[0]), int(datos.geometriaImagen.centroide.val[1]))[0] = 0;
+		imgCentroide.at<cv::Vec3b>(int(datos.geometriaImagen.centroide.val[0]), int(datos.geometriaImagen.centroide.val[1]))[1] = 0;
+		imgCentroide.at<cv::Vec3b>(int(datos.geometriaImagen.centroide.val[0]), int(datos.geometriaImagen.centroide.val[1]))[2] = 255;
 
 		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_4.bmp", imgCentroide);
 
@@ -70,8 +72,8 @@ int main()
 		Eje EjePrin(imagen); // Imagen matriz que mostrará los ejes principales de inercia
 		Eje EjeSec(imagen); // Imagen matriz que mostrará los ejes principales de inercia
 		
-		EjePrin.DibujaEje(EjePrin, datos.centroide, datos.AngGiro);
-		EjeSec.DibujaEjeSec(EjeSec, datos.centroide, datos.AngGiro);
+		EjePrin.DibujaEje(EjePrin, datos.geometriaImagen.centroide, datos.geometriaImagen.AngGiro);
+		EjeSec.DibujaEjeSec(EjeSec, datos.geometriaImagen.centroide, datos.geometriaImagen.AngGiro);
 		
 		//Eje Ejes(imagen); // Imagen matriz que mostrará los dos ejes.
 		//Ejes.DibujaEje(Ejes, datos.centroide, datos.AngGiro);
@@ -81,6 +83,7 @@ int main()
 		/// BUSCAR INTERSECCIÓN CONTORNO - EJE PRINCIPAL Y LONGITUD
 		double longPrin = EjePrin.Intersecc(EjePrin, datos.contorno);
 		//std::cout << "La distancia de cola a cabeza en la imagen numero " << imgarchivo << " es de " << longPrin << " pixeles.\n";
+		*/
 	}	
 
 

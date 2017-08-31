@@ -141,6 +141,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Eje.h" />
+    <ClInclude Include="EstructurasUsadas.h" />
     <ClInclude Include="FuncionesVarias.h" />
     <ClInclude Include="ImgDatos.h" />
   </ItemGroup>
