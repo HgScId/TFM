@@ -23,6 +23,7 @@ int main()
 		imagen = cv::imread("Fotos\\Tv"+std::to_string(imgarchivo)+".bmp", CV_LOAD_IMAGE_COLOR);
 		if (imagen.dims == 0) continue; // Saltarse la foto 6 que no está. Si no carga foto, omites el contador.
 		
+
 		/// UMBRALIZACIÓN CON OTSU MEDIANTE LA BANDA DE AZUL
 		cv::Mat imagenSep[3];
 		cv::split(imagen, imagenSep);
@@ -50,8 +51,16 @@ int main()
 		
 		///  FORMACIÓN DE OBJETOS 
 		imgDatos datos(imagenUmbral); // Se crea el objeto de la clase de datos de la imagen que almacenará la información extraída.
-		datos.perfilamiento(datos.contorno, datos.posPix);
-		cv::imwrite("ImagenSalida\\" + std::to_string(imgarchivo) + "imagenperfilada.bmp", datos.contorno);
+		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_5.bmp", datos.contorno);
+		datos.Erosion(datos.contorno, 5);
+		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_51.bmp", datos.contorno);
+		datos.DibujaContorno();
+		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_52.bmp", datos.contorno);
+		GeometriaObj nuevaGeom = datos.CalculaMomentos(datos.posPix, datos.perObj);
+
+
+		
+		
 		
 		/*
 		/// DIBUJAR CENTROIDE DEL OBJETO PRINCIPAL
@@ -62,12 +71,12 @@ int main()
 		imgCentroide.at<cv::Vec3b>(int(datos.geometriaImagen.centroide.val[0]), int(datos.geometriaImagen.centroide.val[1]))[2] = 255;
 
 		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_4.bmp", imgCentroide);
-
+		*/
 		
 		/// DIBUJAR INSECTO AZUL, CONTORNO EXTERNO ROJO Y CONTORNO INTERNO VERDE
 		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_5.bmp", datos.contorno);
 
-
+		/*
 		/// DIBUJA EJES PRINCIPALES DE INERCIA
 		Eje EjePrin(imagen); // Imagen matriz que mostrará los ejes principales de inercia
 		Eje EjeSec(imagen); // Imagen matriz que mostrará los ejes principales de inercia

@@ -17,7 +17,6 @@ public:
 public:
 	// Estos miembros de la clase han de ser inicilizados con datos de la matriz imagenRef que se le pasa al constructor. 
 	// En el .cpp se inicializan
-	cv::Mat conect; // Matriz que refleja el valor 0 si es un píxel fuera del umbral de Otsu y 255 si es un píxel seleccionado. // ESTA MATRIZ INTRODUCIR COMO VARIABLE LOCAL EN CONTRUCTOR
 	int tamObj; // identifica el tamaño en píxeles del objeto más grande (equivalente al área del objeto)
 	int perObj; // Perímetro del objeto. Número de lados de píxeles contorno que están en contacto con píxeles objeto.
 	std::vector<cv::Vec2i> posPix; // almacena las posiciones de los píxeles del objeto más grande. NO CONTIENE LAS POSICONES DEL CONTORNO DE LA FIGURA.
@@ -28,6 +27,10 @@ public:
 	//función CalculaMomentos con un vector de píxeles del objeto de entrada junto con su perímetro.
 public:
 	void perfilamiento(cv::Mat& imagencontorno, std::vector<cv::Vec2i>& posPixentrada);
-private:
+	void Erosion(cv::Mat& imagencontorno, int tamKernel);
+	void DibujaContorno();
 	GeometriaObj CalculaMomentos(std::vector<cv::Vec2i> posPixentrada, int perObjentrada);
+private:
+	
+	void CreacionObjconCont(cv::Mat& imagencontorno);
 };

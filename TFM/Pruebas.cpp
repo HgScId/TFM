@@ -264,3 +264,21 @@ for (int i = 0; i < imagen.rows; i++)
 	}
 }
 cv::imwrite("ImagenSalida\\resta" + std::to_string(imgarchivo) + "R.bmp", resta);
+
+
+
+/// SOBEL GRADIENTES BORDES 
+cv::Mat imagengris, gradx, grady, grad, gradxy;
+cvtColor(imagen, imagengris, CV_BGR2GRAY);
+
+Sobel(imagengris, gradx, CV_32F, 1, 0, 3);
+gradx = gradx.mul(gradx);
+cv::convertScaleAbs(gradx, gradx);
+
+cv::imwrite("ImagenSalida\\gradx.bmp", gradx);
+Sobel(imagengris, gradxy, CV_8U, 1, 1, 3);
+cv::imwrite("ImagenSalida\\gradxy.bmp", gradxy);
+Sobel(imagengris, grady, CV_8U, 0, 1, 3);
+cv::imwrite("ImagenSalida\\grady.bmp", grady);
+cv::addWeighted(gradx, 0.5, grady, 0.5, 0, grad);
+cv::imwrite("ImagenSalida\\grad.bmp", grad);
