@@ -7,10 +7,12 @@ Eje::Eje(cv::Mat& imagenRef)
 	:
 	mat(imagenRef.size(), CV_8UC1, cv::Scalar(0)) // Los miembros de la clase usan su constructor aquí. Usarlo en el cuerpo
 {
+	IntEje.recta1 = cv::Mat(imagenRef.size(), CV_8UC3, cv::Scalar({ 0,0,0 }));
+	IntEje.recta2 = cv::Mat(imagenRef.size(), CV_8UC3, cv::Scalar({ 0,0,0 }));
 }
 
 
-void Eje::DibujaEje(Eje& eje, cv::Vec2d& centroide, double angulo)
+void Eje::DibujaEje(Eje& eje, const cv::Vec2d& centroide, double angulo)
 {	
 	if (std::tan(angulo) > 0) // recta creciente (decreciente desde el punto de vista, la fila 0 corta por la izquierda)
 	{
@@ -115,7 +117,7 @@ void Eje::DibujaEje(Eje& eje, cv::Vec2d& centroide, double angulo)
 	}
 }
 
-void Eje::DibujaEjeSec(Eje& eje, cv::Vec2d& centroide, double angulo)
+void Eje::DibujaEjeSec(Eje& eje, const cv::Vec2d& centroide, double angulo)
 {
 	DibujaEje(eje, centroide, angulo + PI/2);
 }
@@ -141,17 +143,129 @@ double Eje::Intersecc(Eje& eje, cv::Mat& contorno)
 			}
 		}
 	}
-	double dist = std::sqrt(std::pow((intersecc[0].val[0] - intersecc[1].val[0]), 2) + std::pow((intersecc[0].val[1] - intersecc[1].val[1] - 2), 2));
-	// Ese -2 sirve para eliminar las dos unidades columnas añadidas en cada medición para evitar los cruces de líneas.
+	double dist = std::sqrt(std::pow((intersecc[0].val[0] - intersecc[1].val[0]), 2) + std::pow((intersecc[0].val[1] - intersecc[1].val[1]), 2));
 	return dist;
 }
 
-cv::Vec2d Eje::InterseccSec(const cv::Vec2f & centroide, const double angulo, const double longPrin)
+CorteEjeInfo Eje::InterseccSec(const cv::Vec2f& centroide, const Eje& EjePrin, cv::Mat& contorno, const double angulo)
 {
-	double angTrans = angulo + 3.141593f / 2.0f; // ángulo de la recta del eje transversal.
-	cv::Vec2d longitudes = { 0.0,0.0 };
+	double angSec = angulo + PI/2.0; // ángulo de la recta del eje transversal.
+		
+	int poscen = 0; // posición del centroide en el vector de posiciones del eje principal.
+	for (; poscen < EjePrin.pos.size(); poscen++)
+	{
+		if ((EjePrin.pos[poscen].val[0] == int(centroide.val[0]) && EjePrin.pos[poscen].val[1] == int(centroide.val[1])) ||
+			(EjePrin.pos[poscen].val[0] == int(centroide.val[0]) && EjePrin.pos[poscen].val[1] == int(centroide.val[1])-1) ||
+			(EjePrin.pos[poscen].val[0] == int(centroide.val[0]) && EjePrin.pos[poscen].val[1] == int(centroide.val[1])+1))
+		{
+			break;
+		}
+	}
+
+	for (int poscenAb=poscen; poscenAb < EjePrin.pos.size(); poscenAb++)
+	{
+		Eje EjeAux(cv::Mat(EjePrin.mat.size(), CV_8UC1, cv::Scalar( 0)));
+		EjeAux.DibujaEje(EjeAux, EjePrin.pos[poscenAb], angSec);
+		std::vector<cv::Vec2i> interseccionestemp;
+
+		for (int i = 0; i < EjeAux.pos.size(); i++)
+		{
+			int fil = EjeAux.pos[i].val[0];
+			int col = EjeAux.pos[i].val[1];
+			int testcol1 = 1, testcol2 = 1;
+			if (col - testcol1 < 0) testcol1 = 0;
+			if (col + testcol2 >= EjeAux.mat.cols) testcol2 = 0;
+			if ((EjeAux.mat.at<unsigned char>(fil,col) == 255 && contorno.at<cv::Vec3b>(fil,col)[2] == 255) ||
+				(EjeAux.mat.at<unsigned char>(fil,col) == 255 && contorno.at<cv::Vec3b>(fil,col-testcol1)[2] == 255) ||
+				(EjeAux.mat.at<unsigned char>(fil,col) == 255 && contorno.at<cv::Vec3b>(fil,col+testcol2)[2] == 255))
+			{
+				interseccionestemp.push_back({ fil,col });
+				i += 3;
+			}
+		}
+		if (interseccionestemp.size() != 0)
+		{
+			double dist = 0.0;
+			for (int i = 0; i < interseccionestemp.size() - 1; i++)
+			{
+				int fil = interseccionestemp[i].val[0];
+				int col = interseccionestemp[i].val[1];
+				int fil_1 = interseccionestemp[i + 1].val[0];
+				int col_1 = interseccionestemp[i + 1].val[1];
+
+				if (dist < std::sqrt(double((fil_1 - fil)*(fil_1 - fil) + (col_1 - col)*(col_1 - col))))
+				{
+					dist = std::sqrt(double((fil_1 - fil)*(fil_1 - fil) + (col_1 - col)*(col_1 - col)));
+				}
+				if (dist > IntEje.longitudes[0])
+				{
+					IntEje.longitudes[0] = dist;
+					IntEje.puntos[0] = { fil,col };
+					IntEje.puntos[1] = { fil_1,col_1 };
+					EjeAux.mat.copyTo(IntEje.recta1);
+					cv::Mat temp[] = {cv::Mat::zeros(EjeAux.mat.size(),CV_8UC1), EjeAux.mat, cv::Mat::zeros(EjeAux.mat.size(),CV_8UC1) };
+					cv::merge(temp, 3, IntEje.recta1);
+				}
+			}
+		}
+		else
+		{
+			break;
+		}
+	}
+	for (int poscenAr = poscen; poscenAr >=0; poscenAr--)
+	{
+		Eje EjeAux(cv::Mat(EjePrin.mat.size(), CV_8UC1, cv::Scalar(0)));
+		EjeAux.DibujaEje(EjeAux, EjePrin.pos[poscenAr], angSec);
+		std::vector<cv::Vec2i> interseccionestemp;
+
+		for (int i = 0; i < EjeAux.pos.size(); i++)
+		{
+			int fil = EjeAux.pos[i].val[0];
+			int col = EjeAux.pos[i].val[1];
+			int testcol1 = 1, testcol2 = 1;
+			if (col - testcol1 < 0) testcol1 = 0;
+			if (col + testcol2 >= EjeAux.mat.cols) testcol2 = 0;
+			if ((EjeAux.mat.at<unsigned char>(fil, col) == 255 && contorno.at<cv::Vec3b>(fil, col)[2] == 255) ||
+				(EjeAux.mat.at<unsigned char>(fil, col) == 255 && contorno.at<cv::Vec3b>(fil, col - testcol1)[2] == 255) ||
+				(EjeAux.mat.at<unsigned char>(fil, col) == 255 && contorno.at<cv::Vec3b>(fil, col + testcol2)[2] == 255))
+			{
+				interseccionestemp.push_back({ fil,col });
+				i += 3;
+			}
+		}
+
+		if (interseccionestemp.size() != 0)
+		{
+			double dist = 0.0;
+			for (int i = 0; i < interseccionestemp.size() - 1; i++)
+			{
+				int fil = interseccionestemp[i].val[0];
+				int col = interseccionestemp[i].val[1];
+				int fil_1 = interseccionestemp[i + 1].val[0];
+				int col_1 = interseccionestemp[i + 1].val[1];
+
+				if (dist < std::sqrt(double((fil_1 - fil)*(fil_1 - fil) + (col_1 - col)*(col_1 - col))))
+				{
+					dist = std::sqrt(double((fil_1 - fil)*(fil_1 - fil) + (col_1 - col)*(col_1 - col)));
+				}
+				if (dist > IntEje.longitudes[1])
+				{
+					IntEje.longitudes[1] = dist;
+					IntEje.puntos[2] = { fil,col };
+					IntEje.puntos[3] = { fil_1,col_1 };
+					cv::Mat temp[] = { cv::Mat::zeros(EjeAux.mat.size(),CV_8UC1),EjeAux.mat, cv::Mat::zeros(EjeAux.mat.size(),CV_8UC1) };
+					cv::merge(temp,3,IntEje.recta2);
+				}
+			}
+		}
+		else
+		{
+			break;
+		}
+	}
 
 
-	return longitudes;
+	return IntEje;
 }
 

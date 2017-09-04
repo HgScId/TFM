@@ -476,7 +476,7 @@ void imgDatos::perfilamiento(cv::Mat& imagencontornoentrada, std::vector<cv::Vec
 
 void imgDatos::Erosion(cv::Mat& imagencontorno, int tamKernel)
 {
-	cv::Mat kernel = cv::getStructuringElement(0, cv::Size(tamKernel, tamKernel), cv::Point(-1, -1)); // El 0 es matriz de convolución cuadrada. Punto ancla (-1,-1) en el centro del kernel (matriz de convolución)
+	cv::Mat kernel = cv::getStructuringElement(0, cv::Size(tamKernel, tamKernel), cv::Point(-1,-1)); // El 0 es matriz de convolución cuadrada. Punto ancla (-1,-1) en el centro del kernel (matriz de convolución)
 	cv::Mat salida;
 	erode(imagencontorno, salida, kernel); // Erosiona la imagen.
 

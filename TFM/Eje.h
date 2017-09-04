@@ -2,6 +2,7 @@
 #include<opencv2/core/core.hpp> // Librerías necesarias para usar OpenCV
 #include<opencv2/highgui/highgui.hpp>
 #include<opencv2/imgproc/imgproc.hpp>
+#include"EstructurasUsadas.h"
 
 class Eje
 {/* Esta clase recoge todo el trabajo con los ejes de inercia y rectas sobre una imagen. Se construye mediante las dimensiones de la imagen
@@ -15,16 +16,17 @@ public:
 public:
 	cv::Mat mat; // Matriz que almacena el/los ejes que se dibujen.
 	std::vector<cv::Vec2i> pos; // Vector de coordenadas de los ejes dibujados.
+	CorteEjeInfo IntEje;
 
 public:
 	
 	/// DIBUJA EJE PRINCIPAL DE INERCIA Y LO DEVUELVE COMO IMAGEN
-	void DibujaEje(Eje& eje, cv::Vec2d& centroide, double angulo);
+	void DibujaEje(Eje& eje, const cv::Vec2d& centroide, double angulo);
 
 	/// DIBUJA EJE SECUNDARIO
-	void DibujaEjeSec(Eje& eje, cv::Vec2d& centroide, double angulo);
+	void DibujaEjeSec(Eje& eje, const cv::Vec2d& centroide, double angulo);
 
 	/// INTERSECCIÓN EJES - CONTORNO
 	double Intersecc(Eje& eje, cv::Mat& contorno); // Intersección eje longitudinal
-	cv::Vec2d InterseccSec(const cv::Vec2f& centroide, const double angulo, const double longPrin); // Intersección transversal
+	CorteEjeInfo InterseccSec(const cv::Vec2f& centroide, const Eje& EjePrin, cv::Mat& contorno, const double angulo); // Intersección transversal
 };

@@ -51,12 +51,13 @@ int main()
 		
 		///  FORMACIÓN DE OBJETOS 
 		imgDatos datos(imagenUmbral); // Se crea el objeto de la clase de datos de la imagen que almacenará la información extraída.
-		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_5.bmp", datos.contorno);
-		datos.Erosion(datos.contorno, 5);
-		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_51.bmp", datos.contorno);
-		datos.DibujaContorno();
-		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_52.bmp", datos.contorno);
-		GeometriaObj nuevaGeom = datos.CalculaMomentos(datos.posPix, datos.perObj);
+		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) +"_4.bmp", datos.contorno);
+
+		while (datos.geometriaImagen.factformaelipse < 0.4)
+		{
+			datos.Erosion(datos.contorno, 3);
+		}
+		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_5.bmp", datos.contorno);
 
 
 		
@@ -73,10 +74,7 @@ int main()
 		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_4.bmp", imgCentroide);
 		*/
 		
-		/// DIBUJAR INSECTO AZUL, CONTORNO EXTERNO ROJO Y CONTORNO INTERNO VERDE
-		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_5.bmp", datos.contorno);
-
-		/*
+		
 		/// DIBUJA EJES PRINCIPALES DE INERCIA
 		Eje EjePrin(imagen); // Imagen matriz que mostrará los ejes principales de inercia
 		Eje EjeSec(imagen); // Imagen matriz que mostrará los ejes principales de inercia
@@ -85,14 +83,16 @@ int main()
 		EjeSec.DibujaEjeSec(EjeSec, datos.geometriaImagen.centroide, datos.geometriaImagen.AngGiro);
 		
 		//Eje Ejes(imagen); // Imagen matriz que mostrará los dos ejes.
-		//Ejes.DibujaEje(Ejes, datos.centroide, datos.AngGiro);
-		//Ejes.DibujaEjeSec(Ejes, datos.centroide, datos.AngGiro);
+		//Ejes.DibujaEje(Ejes, datos.geometriaImagen.centroide, datos.geometriaImagen.AngGiro);
+		//Ejes.DibujaEjeSec(Ejes, datos.geometriaImagen.centroide, datos.geometriaImagen.AngGiro);
 		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_6.bmp", Ejes.mat);
 
 		/// BUSCAR INTERSECCIÓN CONTORNO - EJE PRINCIPAL Y LONGITUD
 		double longPrin = EjePrin.Intersecc(EjePrin, datos.contorno);
 		//std::cout << "La distancia de cola a cabeza en la imagen numero " << imgarchivo << " es de " << longPrin << " pixeles.\n";
-		*/
+		EjeSec.IntEje = EjeSec.InterseccSec(datos.geometriaImagen.centroide, EjePrin, datos.contorno, datos.geometriaImagen.AngGiro);
+		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_7.bmp", EjeSec.IntEje.recta1);
+		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_8.bmp", EjeSec.IntEje.recta2);
 	}	
 
 

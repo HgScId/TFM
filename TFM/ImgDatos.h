@@ -21,7 +21,7 @@ public:
 	int perObj; // Perímetro del objeto. Número de lados de píxeles contorno que están en contacto con píxeles objeto.
 	std::vector<cv::Vec2i> posPix; // almacena las posiciones de los píxeles del objeto más grande. NO CONTIENE LAS POSICONES DEL CONTORNO DE LA FIGURA.
 	std::vector<cv::Vec2i> posPixcontornoext; // almacena el contorno exterior de la figura más grande
-	cv::Mat contorno; // Matriz que identificará el controno externo e interno del objeto principal de cada imagen
+	cv::Mat contorno; // Matriz que identificará el controno externo e interno del objeto principal de cada imagen.
 	GeometriaObj geometriaImagen; // La estructura GeometriaObj alberga Momentos de Inercia, valor del centroide, ángulo de giro para la obtención de ejes
 	//principales y el k para elipse ideal y su factor de forma (excentricidad de la figura y elipse equivalente). Para obtener esta estructura se utiliza la
 	//función CalculaMomentos con un vector de píxeles del objeto de entrada junto con su perímetro.
