@@ -27,6 +27,6 @@ public:
 	void DibujaEjeSec(Eje& eje, const cv::Vec2d& centroide, double angulo);
 
 	/// INTERSECCIÓN EJES - CONTORNO
-	double Intersecc(Eje& eje, cv::Mat& contorno); // Intersección eje longitudinal
+	CorteEjeInfo Intersecc(Eje& eje, cv::Mat& contorno); // Intersección eje longitudinal
 	CorteEjeInfo InterseccSec(const cv::Vec2f& centroide, const Eje& EjePrin, cv::Mat& contorno, const double angulo); // Intersección transversal
 };

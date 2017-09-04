@@ -88,7 +88,7 @@ int main()
 		//cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_6.bmp", Ejes.mat);
 
 		/// BUSCAR INTERSECCIÓN CONTORNO - EJE PRINCIPAL Y LONGITUD
-		double longPrin = EjePrin.Intersecc(EjePrin, datos.contorno);
+		EjePrin.IntEje = EjePrin.Intersecc(EjePrin, datos.contorno);
 		//std::cout << "La distancia de cola a cabeza en la imagen numero " << imgarchivo << " es de " << longPrin << " pixeles.\n";
 		EjeSec.IntEje = EjeSec.InterseccSec(datos.geometriaImagen.centroide, EjePrin, datos.contorno, datos.geometriaImagen.AngGiro);
 		cv::imwrite("ImagenSalida\\prueba" + std::to_string(imgarchivo) + "_7.bmp", EjeSec.IntEje.recta1);
